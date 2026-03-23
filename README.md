@@ -127,7 +127,7 @@ Running `python scanner.py sample.ml` produces:
 
 ## Test Cases
 
-### Test 1 — Illegal Characters (`test1_illegal_chars.ml`)
+### Test 1 — Illegal Characters (`illegal_characters.ml`)
 Tests characters that are not part of the MiniLang language: `@`, `#`, `$`, `^`.
 
 **Expected result:** 4 errors, one per illegal character. All surrounding valid tokens are still correctly produced — the scanner recovers and continues after each error.
@@ -142,7 +142,7 @@ Errors found : 4
 
 ---
 
-### Test 2 — Unterminated String (`test2_unterminated_string.ml`)
+### Test 2 — Unterminated String (`unterminated_string.ml`)
 Tests a string literal that is opened with `"` but never closed on the same line.
 
 **Expected result:** 1 error. Because the `STRING` pattern (`"[^"\n]*"`) does not allow newlines, the opening `"` fails to match and is flagged as `UNKNOWN`. The rest of the line is rescanned fresh, so `Hello` and `World` become `IDENTIFIER` tokens. The next valid string `"Alice"` on the following line is correctly recognized.
@@ -154,7 +154,7 @@ Errors found : 1
 
 ---
 
-### Test 3 — Mixed Valid and Invalid (`test3_mixed_errors.ml`)
+### Test 3 — Mixed Valid and Invalid (`mixed_errors.ml`)
 Tests recovery when illegal characters (`~`, `&`) appear in the middle of otherwise valid statements.
 
 **Expected result:** 2 errors. The scanner flags both illegal characters, then continues tokenizing the rest of the program correctly — including `float`, `string`, and `print()` calls that appear after the errors.
