@@ -199,7 +199,7 @@ After all input is consumed, a final `EOF` token is appended to signal the end o
 
 | Member | Role |
 |---|---|
-| Member 1 | Grammar Designer — token spec, sample program, test inputs |
-| Member 2 | Scanner Core Developer — regex patterns, master pattern, line tracking |
-| Member 3 | Token Classification & Error Handling — keywords, UNKNOWN, report output |
-| Member 4 | Report Writer & Demo Lead — documentation, screenshots, live demo |
+| Muthomi | Grammar Designer — token spec, sample program, test inputs |
+| Enrique | Scanner Core Developer — regex patterns, master pattern, line tracking |
+| Spencer | Token Classification & Error Handling — keywords, UNKNOWN, report output |
+| Prosper | Report Writer & Demo Lead — documentation, screenshots, live demo |
