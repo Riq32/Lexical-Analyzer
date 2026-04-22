@@ -17,15 +17,33 @@ class ParserCST:
 
     def match(self, expected_type):
         token = self.peek()
+
         if token.type == expected_type:
             self.advance()
             return token
+
+        if expected_type == "SEMICOLON":
+            self.error("Missing ';' at end of statement")
+        elif expected_type == "RPAREN":
+            self.error("Missing ')'")
+        elif expected_type == "RBRACE":
+            self.error("Missing '}'")
+        elif expected_type == "LPAREN":
+            self.error("Missing '(' after keyword")
         else:
-            self.error(f"Expected {expected_type}, found {token.type}")
+            self.error(f"Expected {expected_type}")
 
     def error(self, message):
         token = self.peek()
-        raise Exception(f"[Syntax Error] Line {token.line}, Col {token.column}: {message}")
+
+        full_msg = (
+            f"\n[SYNTAX ERROR]\n"
+            f"Line {token.line}, Column {token.column}\n"
+            f"Found: {token.type} ({token.value})\n"
+            f"Problem: {message}\n"
+        )
+
+        raise Exception(full_msg)
 
     def node(self, name, children=None, value=None):
         return CSTNode(name, children, value)
@@ -69,19 +87,23 @@ class ParserCST:
                 return self.parse_while()
             elif token.value == "print":
                 return self.parse_print()
+            else:
+                self.error(f"Unknown keyword '{token.value}'")
 
         elif token.type == "IDENTIFIER":
             return self.parse_assignment()
 
+        elif token.type == "UNKNOWN":
+            self.error(f"Invalid symbol '{token.value}'")
+
         else:
-            self.error("Invalid statement")
+            self.error("Invalid start of statement")
 
     # ----------------------------
     # Assignment
     # ----------------------------
     def parse_assignment(self):
         id_tok = self.match("IDENTIFIER")
-
         assign_tok = self.match("ASSIGN")
 
         expr = self.parse_expression()
@@ -99,7 +121,10 @@ class ParserCST:
     # IF
     # ----------------------------
     def parse_if(self):
-        self.advance()  # if
+        token = self.peek()
+        if token.value != "if":
+            self.error("Expected 'if'")
+        self.advance()
 
         self.match("LPAREN")
         cond = self.parse_condition()
@@ -119,7 +144,10 @@ class ParserCST:
     # WHILE
     # ----------------------------
     def parse_while(self):
-        self.advance()  # while
+        token = self.peek()
+        if token.value != "while":
+            self.error("Expected 'while'")
+        self.advance()
 
         self.match("LPAREN")
         cond = self.parse_condition()
@@ -139,7 +167,10 @@ class ParserCST:
     # PRINT
     # ----------------------------
     def parse_print(self):
-        self.advance()  # print
+        token = self.peek()
+        if token.value != "print":
+            self.error("Expected 'print'")
+        self.advance()
 
         self.match("LPAREN")
         expr = self.parse_expression()
@@ -152,10 +183,11 @@ class ParserCST:
         ])
 
     # ----------------------------
-    # Expressions
+    # Expressions (FIXED STRUCTURE)
     # ----------------------------
     def parse_expression(self):
-        node = self.parse_term()
+        term_node = self.parse_term()
+        node = self.node("expression", [term_node])
 
         while self.peek().type == "ARITH_OP" and self.peek().value in ("+", "-"):
             op = self.peek()
@@ -171,7 +203,8 @@ class ParserCST:
         return node
 
     def parse_term(self):
-        node = self.parse_factor()
+        factor_node = self.parse_factor()
+        node = self.node("term", [factor_node])
 
         while self.peek().type == "ARITH_OP" and self.peek().value in ("*", "/"):
             op = self.peek()
@@ -191,30 +224,50 @@ class ParserCST:
 
         if token.type == "NUMBER":
             self.advance()
-            return self.node("number", value=token.value)
+            return self.node("factor", [
+                self.node("number", value=token.value)
+            ])
 
         elif token.type == "IDENTIFIER":
             self.advance()
-            return self.node("identifier", value=token.value)
+            return self.node("factor", [
+                self.node("identifier", value=token.value)
+            ])
 
         elif token.type == "STRING":
             self.advance()
-            return self.node("string", value=token.value)
+            return self.node("factor", [
+                self.node("string", value=token.value)
+            ])
 
         elif token.type == "LPAREN":
             self.advance()
-            node = self.parse_expression()
+            expr = self.parse_expression()
             self.match("RPAREN")
-            return node
+
+            return self.node("factor", [
+                self.node("LPAREN", value="("),
+                expr,
+                self.node("RPAREN", value=")")
+            ])
+
+        elif token.type == "ARITH_OP":
+            self.error("Operator cannot appear without operand")
+
+        elif token.type == "UNKNOWN":
+            self.error(f"Invalid symbol '{token.value}'")
 
         else:
-            self.error("Invalid factor")
+            self.error("Invalid factor (expected number, identifier, or expression)")
 
     # ----------------------------
     # Condition
     # ----------------------------
     def parse_condition(self):
         left = self.parse_expression()
+
+        if self.peek().type != "REL_OP":
+            self.error("Expected relational operator")
 
         op = self.match("REL_OP")
 
