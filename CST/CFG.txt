@@ -1,0 +1,39 @@
+1. Program structure
+<program> ::= <statement_list>
+2. Statement list
+<statement_list>::=<statement>| <statement> <statement_list>
+3. Statement
+<statement> ::= <assignment>
+| <if_statement>
+| <while_statement>
+| <print_statement>
+
+4. Assignment
+<assignment> ::= <identifier> "=" <expression> ";"
+5. If statement
+<if_statement> ::= "if" "(" <condition> ")" "{" <statement_list> "}"
+6. While statement
+<while_statement>::=”while” ”(”<condition>”)” ”{“<statement_list”}”
+7. Print statement
+<print_statement>::=”print” “(“<expression>” “)”
+
+Expressions
+1. Arithmetic expressions
+<expression> ::= <expression> "+" <term>
+| <expression> "-" <term>
+| <term>
+
+2. Terms
+<term> ::= <term> "*" <factor>
+| <term> "/" <factor>
+| <factor>
+3. Factors
+
+<factor> ::= <identifier>
+| <number>
+| "(" <expression> ")"
+
+Logical Expressions
+<condition> ::= <expression> ">" <expression>
+| <expression> "<" <expression>
+| <expression> "==" <expression>
