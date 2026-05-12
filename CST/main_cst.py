@@ -13,8 +13,12 @@ from icg import ICGenerator
 
 
 def main():
+<<<<<<< Updated upstream
     # ── Read source program ──
     with open("sample.po") as f:
+=======
+    with open("sample2.po") as f:
+>>>>>>> Stashed changes
         source = f.read()
 
     print("\n" + "=" * 66)
